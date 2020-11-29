@@ -2,84 +2,92 @@ import twint
 from datetime import timedelta, date
 import threading
 from pathlib import Path
+from time import sleep
+import os
 
-
-# TODO: implement multiple keyword search
 
 # multi-threading class to more fully leverage Twint
 # there is downtime between searches as the program outputs the data to file
 # in which case more can be used to speed up output
 class TwintThread(threading.Thread):
-    def __init__(self, year):
+    def __init__(self, year, keywords, output_path):
         threading.Thread.__init__(self)
         self.year = year
         self.name = self.year
+        self.keywords = keywords
+        self.outputPath = "E:\\" + str(self.year) + '\\'
 
-        self.limit = 50000
+        self.limit = 0
+        self.min_likes = 0
 
-        self.fileName = "temp/" + self.year + "_current_date.txt"
+        self.fileName = "temp/" + str(self.year) + "_current_date.txt"
 
         self.c = twint.Config()
         self.c.Store_csv = True
+        self.c.Hide_output = True
+        self.c.Count = True
+
+        self.end_date = date(self.year + 1, 1, 1)
 
     def run(self):
-        # read in a date from a file, if possible
-        # otherwise start from year/1/1
-
-        end_date = "{}-12-31".format(self.year)
+        # attempt to create a folder to store the outputs, could already exist from prior runs, in which case ignore
+        try:
+            os.mkdir(self.outputPath)
+        except:
+            pass
 
         # read in the last completed search, if possible
-        # otherwise, start at the beginning of the year
         if Path(self.fileName).exists():
-            # read in a line and attempt to convert to a date
+            # read in a line and attempt to convert to a date, start on the next day
             with open(self.fileName, "r") as date_file:
-                temp_date = date_file.readLine()
-                current_date = date.fromisoformat(temp_date)
+                temp_date = date_file.readline()
+                current_date = date.fromisoformat(temp_date) + timedelta(days=1)
         else:
-            current_date = "{}-1-1".format(self.year)
+            # otherwise, start at the beginning of the year
+            current_date = date(self.year, 1, 1)
 
+        # for date_, date_next in date_range(current_date, self.end_date):
+        #     print(date_, date_next)
 
+        while current_date < self.end_date:
+            for date_, date_next in date_range(current_date, self.end_date):
 
-        while current_date != end_date:
-            for date_, date_next in date_range(current_date, end_date):
-                # setup the timeframe for this search
-                self.c.Since = date_
-                self.c.Until = date_next
+                # increment current_date for the while conditional above
 
-                #setup this search's output path
-                search_output = "{}_{}_like={}_limit={}.csv".format(date_, date_next, min_likes, self.limit)
-                output_path = "E:\\" + search_output
-                self.c.Output = output_path
+                try:
+                    for keyword in self.keywords:
+                        print("{} - {} - {}".format(self.name, date_, keyword))
+                        # setup the timeframe for this search
+                        self.c.Since = date_
+                        self.c.Until = date_next
+                        self.c.Search = keyword
 
-                # perform the search
-                twint.run.Search(self.c)
+                        # setup this search's output path
+                        search_output = "{}_{}_like={}_limit={}_keyword={}.csv".format(date_, date_next, self.min_likes,
+                                                                                       self.limit, keyword)
+                        final_path = self.outputPath + search_output
+                        self.c.Output = final_path
 
-                #write to the file
-                with open(self.fileName, 'w') as filetowrite:
-                    filetowrite.write(date_)
+                        # perform the search
+                        twint.run.Search(self.c)
 
-        print("Starting " + self.name)
-        print("Exiting " + self.name)
+                    # write to the file
+                    with open(self.fileName, 'w') as file_to_write:
+                        file_to_write.write(date_)
 
+                except:
+                    # this is used as a fail-safe on network failure
+                    # there is a 30 second time-out on Twint, but this
+                    # just attempts the search again after 60 seconds
+                    # in order to ensure it runs over a long period of time
+                    print("Network Connection Failure. Waiting 60 seconds before starting again.")
+                    sleep(30)
+                    break
+                else:
+                    current_date = date.fromisoformat(date_) + timedelta(days=1)
 
-def musk_tweets():
-    keywords = ["elon musk", "tesla"]
-
-    c = twint.Config()
-    c.Username = "elonmusk"
-    # c.Search = "tesla"
-
-    # output to file, either CSV or JSON for more use later
-    c.Output = "out/musk_tweets.csv"
-    c.Store_csv = True
-    c.Since = "2020-01-20"
-    c.Until = "2020-01-29"
-
-    # flags to keep track of
-    c.Count = True
-
-    # start the search
-    twint.run.Search(c)
+            print("{} != {}".format(current_date, self.end_date))
+        print("Finished ", self.year)
 
 
 # iterate through the dates in YYYY-MM-DD form to input into a keyword search
@@ -92,61 +100,42 @@ def date_range(start_date, end_date):
         yield day.strftime("%Y-%m-%d"), next_day.strftime("%Y-%m-%d")
 
 
-def daily_keyword_tweets():
-    min_likes = 0
-    limit = 50000
-
-    c = twint.Config()
-    c.Store_csv = True
-
-    # set a minimum like # to ignore bots and get a greater spread over the day
-    c.Min_likes = min_likes
-
-    # can be adapted to run through multiple keywords
-    c.Search = "tesla"
-
-    # the max amount of tweets to scrape each day
-    c.Limit = limit
-    c.Count = True
-
-    # start and end date of the scrape
-    start_date = date(2019, 2, 24)
-    end_date = date.today()
-
-    # iterate through all days and pull relevant data
-    for date_, date_next in date_range(start_date, end_date):
-        print("FROM: '{}' : '{}' ".format(date_, date_next))
-
-        # set the day that the keyword search will be used on, due to timezones changing this output, it includes 2 days
-        c.Since = date_
-        c.Until = date_next
-
-        file_name = "{}_{}_like={}_limit={}.csv".format(date_, date_next, min_likes, limit)
-        output_path = "E:\\" + file_name
-        c.Output = output_path
-
-        twint.run.Search(c)
-
-
 if __name__ == '__main__':
-    min_likes = 0  # only retrieve tweets with at least this amount of likes
-    # limit = 50000       # only retrieve this amount of tweets
-    search = ["tesla"]  # "elonmusk"
-    years = [range(2011, 2021)]
+    # search through years with keyword search, creates a thread for each year, could be refactored to
+    # multi-thread on a smaller increment, like a month, week, or day
+    years = list(range(2011, 2021))
+    search = ["tesla", "elonmusk"]
+    output_path = "E:\\"
 
-    musk_tweets()
-    # time.sleep(3)
-    # daily_keyword_tweets()
     threads = []
-
     for y in years:
-        t = TwintThread(y)
+        t = TwintThread(y, search, output_path)
         threads.append(t)
         t.start()
-
-    print("Threads have been started")
 
     for t in threads:
         t.join()
 
     print("Exiting...")
+    # async cleanup error, possibly an error only on Windows, doesn't affect output and only occurs on thread exit
+    # a possible fix is just to give the graphs time to catch up, in which case a wait-time is used
+    # https://github.com/encode/httpx/issues/914
+    sleep(5)
+
+
+def musk_tweets():
+    keywords = ["elon musk", "tesla"]
+
+    c = twint.Config()
+    c.Username = "elonmusk"
+    # c.Search = "tesla"
+
+    # output to file, either CSV or JSON for more use later
+    c.Output = "out/musk_tweets.csv"
+    c.Store_csv = True
+
+    # flags to keep track of
+    c.Count = True
+
+    # start the search
+    twint.run.Search(c)
