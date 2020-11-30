@@ -1,0 +1,6 @@
+- input to download a file directly from gdrive using wget, as the functionality for this was deprecated in 2015
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=13p0SCvLAbr5CNwTCzFV5yBBuOKgROLu9' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=13p0SCvLAbr5CNwTCzFV5yBBuOKgROLu9" -O out_.zip
+
+IDs:
+
+2011-2014: '13p0SCvLAbr5CNwTCzFV5yBBuOKgROLu9'
