@@ -12,12 +12,14 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
+//This is used to cleanup the results from scraper/Twint.py, which are csv files with all of the tweet information inside
 public class CSVCleanup {
 
     public static class Mapper extends org.apache.hadoop.mapreduce.Mapper<Object, Text, Text,
             Text> {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss[X]");
+        //[X] is optional, and as a result allows the format to be reused for the output to include GMT's 'Z'
+        static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss[X]");
 
         @Override
         protected void setup(Context context) {
@@ -55,7 +57,18 @@ public class CSVCleanup {
             }
 
             String id = res[0];
+
             String tweet = res[10];
+            //clean tweet of links, @users, RT's, and normalize it to lowercase
+            tweet = tweet.replaceAll("(RT\\s@[A-Za-z]+[A-Za-z0-9-_]+)", "")
+                    .replaceAll("(@[A-Za-z]+[A-Za-z0-9-_]+)", "")
+                    //replace links + shorteners
+                    .replaceAll("http\\S+", "")
+                    .replaceAll("bit.ly/\\S+", "")
+                    //replace all punctuation
+                    .replaceAll("/[^A-Za-z0-9\\s]/g", " ")
+                    .replaceAll("/\\s{2,}/g", " ")
+                    .toLowerCase();
 
             //cleanup date, as it's currently staggered by the timezone of the scraper
             // in this case MTC (zone -07), this means converting the date to GMT
@@ -78,8 +91,12 @@ public class CSVCleanup {
         protected void reduce(Text key, Iterable<Text> values, Context
                 context) throws IOException, InterruptedException {
 
-            for (Text cleanedData : values)
+            //As the ID of the tweet is a primary key, only output one time to get rid of redundant scraped tweets
+            //that were part of multiple keyword searches
+            for (Text cleanedData : values) {
                 context.write(new Text(cleanedData), NullWritable.get());
+                return;
+            }
         }
 
     }

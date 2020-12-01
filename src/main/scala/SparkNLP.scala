@@ -1,3 +1,14 @@
+import com.johnsnowlabs.nlp.base._
+import com.johnsnowlabs.nlp.annotator._
+import org.apache.spark.ml.Pipeline
+import org.apache.spark.ml.PipelineModel
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql._
+import org.apache.spark.SparkContext
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs._
+
+
 object SparkNLP {
   def main(args: Array[String]) {
     //print("STARTING PROGRAM ")
@@ -5,6 +16,7 @@ object SparkNLP {
     val sc = SparkContext.getOrCreate()
 
     // Read in data, save as dataset (Will work with either Answers.csv, or Questions.csv)
+    import spark.implicits._
     val df = spark.read.format("csv")
       .option("header", "true")
       .option("multiline", "true")

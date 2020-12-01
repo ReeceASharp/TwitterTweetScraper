@@ -1,6 +1,12 @@
 - input to download a file directly from gdrive using wget, as the functionality for this was deprecated in 2015
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=13p0SCvLAbr5CNwTCzFV5yBBuOKgROLu9' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=13p0SCvLAbr5CNwTCzFV5yBBuOKgROLu9" -O out_.zip
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=INSERT_LINK_HERE' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=INSERT_LINK_HERE" -O output_file
 
 IDs:
+2011-2014:      '13p0SCvLAbr5CNwTCzFV5yBBuOKgROLu9'
+2015-2017:      '1iPn456btVS1CeXwqqOu0tMKGbPXcYzmc'
+2018:           '1CRhhNb3gA22yLFvUybP49nrNbUptZxtP'
+2019:           '1dKXJLVzHSxQZGvmY9QXpOZqDlIVmUanI'
+2020-tesla:     ''
+2020-elonmusk:  ''
 
-2011-2014: '13p0SCvLAbr5CNwTCzFV5yBBuOKgROLu9'
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1iPn456btVS1CeXwqqOu0tMKGbPXcYzmc' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1iPn456btVS1CeXwqqOu0tMKGbPXcYzmc" -O out.zip
