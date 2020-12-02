@@ -59,15 +59,16 @@ public class CSVCleanup {
             String id = res[0];
 
             String tweet = res[10];
-            //clean tweet of links, @users, RT's, and normalize it to lowercase
+            //clean tweet of links, @users, RT's
             tweet = tweet.replaceAll("(RT\\s@[A-Za-z]+[A-Za-z0-9-_]+)", "")
                     .replaceAll("(@[A-Za-z]+[A-Za-z0-9-_]+)", "")
                     //replace links + shorteners
                     .replaceAll("http\\S+", "")
                     .replaceAll("bit.ly/\\S+", "")
-                    //replace all punctuation
+                    //replace all punctuation and attempt to remove extra whitespace
                     .replaceAll("/[^A-Za-z0-9\\s]/g", " ")
-                    .replaceAll("/\\s{2,}/g", " ")
+                    .replaceAll("\\s+", " ")
+                    //normalize to lowercase
                     .toLowerCase();
 
             //cleanup date, as it's currently staggered by the timezone of the scraper
@@ -76,7 +77,7 @@ public class CSVCleanup {
             ZonedDateTime time = LocalDateTime.parse(dateTime, formatter).atZone(ZoneOffset.ofHours(-7));
             String timeGMT = time.toOffsetDateTime().withOffsetSameInstant(ZoneOffset.UTC).toString();
 
-            String cleanedData = String.format("%s,%s,%s", id, timeGMT, tweet);
+            String cleanedData = String.format("%s,%s", timeGMT, tweet);
 
             context.write(new Text(id), new Text(cleanedData));
 
