@@ -18,12 +18,11 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 
-
 public class ReplyGenerator {
     public static Boolean DEBUG = false;
 
     public static class Mapper extends org.apache.hadoop.mapreduce.Mapper<Object, Text, Text,
-            Text> {
+            NullWritable> {
 
         private final HashSet<String> ids = new HashSet<>();
 
@@ -61,8 +60,16 @@ public class ReplyGenerator {
 
             //if this matches one of the IDs of elon musks tweets, then that means it's a reply, output the relevant info
             if (ids.contains(groupID)) {
+
+                tweet = tweet.replaceAll("(RT\\s@[A-Za-z]+[A-Za-z0-9-_]+)", "")
+                        .replaceAll("(@[A-Za-z]+[A-Za-z0-9-_]+)", "")
+                        //replace links + shorteners
+                        .replaceAll("http\\S+", "")
+                        .replaceAll("bit.ly/\\S+", "");
+                        //replace all punctuation and attempt to remove extra whitespace
+
                 String output = String.format("%s,%s,%s", groupID, tokens[0], tweet);
-                context.write(new Text(groupID), new Text(output));
+                context.write(new Text(output), NullWritable.get());
             }
         }
     }
@@ -110,7 +117,7 @@ public class ReplyGenerator {
 
         //mapper output
         generationJob.setMapOutputKeyClass(Text.class);
-        generationJob.setMapOutputValueClass(Text.class);
+        generationJob.setMapOutputValueClass(NullWritable.class);
 
         //setup Distributed Cache
         generationJob.addCacheFile(new URI("hdfs://atlanta:30201/group/data/musk_tweets.csv"));
