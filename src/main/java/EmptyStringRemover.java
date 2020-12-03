@@ -9,6 +9,8 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 
 
+//attempting to fix the issue of empty tweets being fed into the sentiment analysis and crashing it
+//decided on a different solution
 public class EmptyStringRemover {
 
     public static class Mapper extends org.apache.hadoop.mapreduce.Mapper<Object, Text, Text,

@@ -60,16 +60,16 @@ public class CSVCleanup {
 
             String tweet = res[10];
             //clean tweet of links, @users, RT's
-            tweet = tweet.replaceAll("(RT\\s@[A-Za-z]+[A-Za-z0-9-_]+)", "")
-                    .replaceAll("(@[A-Za-z]+[A-Za-z0-9-_]+)", "")
-                    //replace links + shorteners
-                    .replaceAll("http\\S+", "")
-                    .replaceAll("bit.ly/\\S+", "")
-                    //replace all punctuation and attempt to remove extra whitespace
-                    .replaceAll("/[^A-Za-z0-9\\s]/g", " ")
-                    .replaceAll("\\s+", " ")
-                    //normalize to lowercase
-                    .toLowerCase();
+//            tweet = tweet.replaceAll("(RT\\s@[A-Za-z]+[A-Za-z0-9-_]+)", "")
+//                    .replaceAll("(@[A-Za-z]+[A-Za-z0-9-_]+)", "")
+//                    //replace links + shorteners
+//                    .replaceAll("http\\S+", "")
+//                    .replaceAll("bit.ly/\\S+", "")
+//                    //replace all punctuation and attempt to remove extra whitespace
+//                    .replaceAll("/[^A-Za-z0-9\\s]/g", " ")
+//                    .replaceAll("\\s+", " ")
+//                    //normalize to lowercase
+//                    .toLowerCase();
 
             //cleanup date, as it's currently staggered by the timezone of the scraper
             // in this case MTC (zone -07), this means converting the date to GMT

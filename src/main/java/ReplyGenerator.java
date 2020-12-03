@@ -19,7 +19,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 
 public class ReplyGenerator {
-    public static Boolean DEBUG = false;
 
     public static class Mapper extends org.apache.hadoop.mapreduce.Mapper<Object, Text, Text,
             NullWritable> {
@@ -28,7 +27,7 @@ public class ReplyGenerator {
 
         @Override
         protected void setup(Context context) throws IOException {
-            if (DEBUG) System.out.println("\n\nSETTING UP\n\n");
+
             //insert the adjacency list into memory to quickly access when needed
             // for list appends
             URI[] files = context.getCacheFiles();
@@ -61,12 +60,12 @@ public class ReplyGenerator {
             //if this matches one of the IDs of elon musks tweets, then that means it's a reply, output the relevant info
             if (ids.contains(groupID)) {
 
-                tweet = tweet.replaceAll("(RT\\s@[A-Za-z]+[A-Za-z0-9-_]+)", "")
-                        .replaceAll("(@[A-Za-z]+[A-Za-z0-9-_]+)", "")
-                        //replace links + shorteners
-                        .replaceAll("http\\S+", "")
-                        .replaceAll("bit.ly/\\S+", "");
-                        //replace all punctuation and attempt to remove extra whitespace
+//                tweet = tweet.replaceAll("(RT\\s@[A-Za-z]+[A-Za-z0-9-_]+)", "")
+//                        .replaceAll("(@[A-Za-z]+[A-Za-z0-9-_]+)", "")
+//                        //replace links + shorteners
+//                        .replaceAll("http\\S+", "")
+//                        .replaceAll("bit.ly/\\S+", "");
+//                        //replace all punctuation and attempt to remove extra whitespace
 
                 String output = String.format("%s,%s,%s", groupID, tokens[0], tweet);
                 context.write(new Text(output), NullWritable.get());
@@ -81,15 +80,9 @@ public class ReplyGenerator {
         protected void reduce(Text key, Iterable<Text> values, Context
                 context) throws IOException, InterruptedException {
 
-            //StringBuilder sb = new StringBuilder();
             for (Text value : values) {
-
                 context.write(new Text(key.toString() + "," + value), NullWritable.get());
-                //sb.append(value.toString()).append(",");
             }
-
-            //String output = key.toString() + " " + sb.toString();
-            //context.write(new Text(output), NullWritable.get());
 
         }
 

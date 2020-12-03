@@ -30,11 +30,10 @@ object SentimentDL {
     //val analyzed_data = model.transform(df.select("tweet").withColumnRenamed("tweet", "text"))
 
     //val results = analyzed_data.select("sentiment.result")
-    val transformed_data = model.transform(df.select("tweet").withColumnRenamed("tweet", "text")).
+    val transformed_data = model.transform(df.select("tweet").withColumnRenamed("tweet", "text"))
     val joined_data = transformed_data.join(df, transformed_data("text") === df("tweet"), "inner").select("musk_ID", "reply_ID", "tweet", "sentiment.result")
       .withColumn("result", concat_ws("|", col("result")))
 
-    transformed_data.drop("", "")
 
 
     val documentAssembler = new DocumentAssembler().setInputCol("tweet").setOutputCol("document")

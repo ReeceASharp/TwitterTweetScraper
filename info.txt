@@ -10,4 +10,5 @@ IDs:
 2020-tesla:     '1nPllf3b3bN603O14ibH747csUeN8T-GR'
 2020-elonmusk:  '1V_W480zqa1pFx-fnfy2-e6RW5VVPltjZ'
 
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1iPn456btVS1CeXwqqOu0tMKGbPXcYzmc' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1iPn456btVS1CeXwqqOu0tMKGbPXcYzmc" -O out.zip
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1V_W480zqa1pFx-fnfy2-e6RW5VVPltjZ' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1V_W480zqa1pFx-fnfy2-e6RW5VVPltjZ" -O out.zip
+hadoop_ fs -put 2018 /group/data/
